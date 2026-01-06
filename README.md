@@ -150,3 +150,6 @@ The frontend will be available at: `http://localhost:3000`
 Assistant: Hi! I'm here to help you get checked in today. To get started, could you tell me your name?
 
 You: Sure, I'm John Doe
+Assistant: Great! And what's your date of birth?
+
+You: March 15, 1985. Also my phone is 555-0123

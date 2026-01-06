@@ -11,6 +11,17 @@ export function formatDate(dateStr) {
     if (!dateStr) return '';
 
     try {
+        // Parse date string manually to avoid timezone issues
+        // Expected format: YYYY-MM-DD
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+            const year = parts[0];
+            const month = parts[1].padStart(2, '0');
+            const day = parts[2].padStart(2, '0');
+            return `${month}/${day}/${year}`;
+        }
+
+        // Fallback to original method if format is unexpected
         const date = new Date(dateStr);
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');

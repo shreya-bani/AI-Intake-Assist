@@ -1,6 +1,7 @@
 from providers.base_provider import BaseProvider
 from providers.openai_provider import OpenAIProvider
 from providers.anthropic_provider import AnthropicProvider
+from providers.azure_openai_provider import AzureOpenAIProvider
 from config import settings
 
 
@@ -43,10 +44,27 @@ class ProviderFactory:
             provider.validate_config()
             return provider
 
+        elif provider_type == "azure_openai":
+            if not settings.AZURE_OPENAI_API_KEY:
+                raise ValueError("AZURE_OPENAI_API_KEY is required when using Azure OpenAI provider")
+            if not settings.AZURE_OPENAI_ENDPOINT:
+                raise ValueError("AZURE_OPENAI_ENDPOINT is required when using Azure OpenAI provider")
+            if not settings.AZURE_OPENAI_MODEL_NAME:
+                raise ValueError("AZURE_OPENAI_MODEL_NAME is required when using Azure OpenAI provider")
+
+            provider = AzureOpenAIProvider(
+                api_key=settings.AZURE_OPENAI_API_KEY,
+                endpoint=settings.AZURE_OPENAI_ENDPOINT,
+                model_name=settings.AZURE_OPENAI_MODEL_NAME,
+                api_version=settings.AZURE_OPENAI_API_VERSION
+            )
+            provider.validate_config()
+            return provider
+
         else:
             raise ValueError(
                 f"Invalid LLM_PROVIDER: {provider_type}. "
-                f"Supported providers: openai, anthropic"
+                f"Supported providers: openai, anthropic, azure_openai"
             )
 
 

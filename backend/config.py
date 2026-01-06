@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
 from typing import Optional, List
 import os
+from pathlib import Path
 
 
 class Settings(BaseSettings):
@@ -14,6 +15,12 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     ANTHROPIC_API_KEY: Optional[str] = None
 
+    # Azure OpenAI Settings
+    AZURE_OPENAI_API_KEY: Optional[str] = None
+    AZURE_OPENAI_ENDPOINT: Optional[str] = None
+    AZURE_OPENAI_MODEL_NAME: Optional[str] = None
+    AZURE_OPENAI_API_VERSION: str = "2024-12-01-preview"
+
     # Application Settings
     HOST: str = "0.0.0.0"
     PORT: int = 8000
@@ -24,7 +31,8 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
 
     class Config:
-        env_file = ".env"
+        # Look for .env in parent directory (project root)
+        env_file = str(Path(__file__).parent.parent / ".env")
         env_file_encoding = "utf-8"
         case_sensitive = True
 
@@ -38,8 +46,15 @@ class Settings(BaseSettings):
             raise ValueError("OPENAI_API_KEY must be set when LLM_PROVIDER is 'openai'")
         elif self.LLM_PROVIDER == "anthropic" and not self.ANTHROPIC_API_KEY:
             raise ValueError("ANTHROPIC_API_KEY must be set when LLM_PROVIDER is 'anthropic'")
-        elif self.LLM_PROVIDER not in ["openai", "anthropic"]:
-            raise ValueError(f"Invalid LLM_PROVIDER: {self.LLM_PROVIDER}. Must be 'openai' or 'anthropic'")
+        elif self.LLM_PROVIDER == "azure_openai":
+            if not self.AZURE_OPENAI_API_KEY:
+                raise ValueError("AZURE_OPENAI_API_KEY must be set when LLM_PROVIDER is 'azure_openai'")
+            if not self.AZURE_OPENAI_ENDPOINT:
+                raise ValueError("AZURE_OPENAI_ENDPOINT must be set when LLM_PROVIDER is 'azure_openai'")
+            if not self.AZURE_OPENAI_MODEL_NAME:
+                raise ValueError("AZURE_OPENAI_MODEL_NAME must be set when LLM_PROVIDER is 'azure_openai'")
+        elif self.LLM_PROVIDER not in ["openai", "anthropic", "azure_openai"]:
+            raise ValueError(f"Invalid LLM_PROVIDER: {self.LLM_PROVIDER}. Must be 'openai', 'anthropic', or 'azure_openai'")
 
 
 # Create a global settings instance
